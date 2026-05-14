@@ -18,7 +18,6 @@ public class BallController : MonoBehaviour
             now = 0f;
             Destroy(gameObject);
         }
-
     }
 
     private void OnCollisionEnter(Collision other)

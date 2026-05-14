@@ -1,3 +1,4 @@
+using Algorithm;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,6 +13,12 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        if (!ValidateRequiredComponents())
+        {
+            enabled = false;
+            Debug.LogError("PlayerController: 必須コンポーネントが不足しています。", this);
+            return;
+        }
         _playerContext = new PlayerContext(playerInput, capsuleCollider, transform, settings);
     }
 
@@ -31,4 +38,26 @@ public class PlayerController : MonoBehaviour
     //{
     //    _playerContext.CurrentState?.FixedExecute();
     //}
+
+    #region 必須コンポーネントがアタッチされているかのチェック
+    private bool ValidateRequiredComponents()
+    {
+        bool isValid = true;
+#if UNITY_EDITOR
+        // 必須コンポーネントチェック
+        isValid = ComponentValidator.ValidateAndLogRequired(
+            this,
+            playerInput,
+            capsuleCollider,
+            settings
+        );
+
+        if (!isValid)
+        {
+            return false;
+        }
+#endif
+        return isValid;
+    }
+    #endregion
 }
