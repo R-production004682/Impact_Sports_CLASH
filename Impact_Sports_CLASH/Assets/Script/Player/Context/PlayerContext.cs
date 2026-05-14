@@ -41,7 +41,7 @@ public class PlayerContext : IPlayerContext
     // 状態をキャッシュしてGCを防止
     private readonly Dictionary<Type, PlayerState> _stateCache = new Dictionary<Type, PlayerState>();
 
-    // 状態生成のカスタムファクトリ（任意）
+    // 状態生成のカスタムファクトリ
     private readonly Dictionary<Type, Func<IPlayerContext, PlayerState>> _stateFactories = new Dictionary<Type, Func<IPlayerContext, PlayerState>>();
 
     public void RegisterStateFactory<T>(Func<IPlayerContext, PlayerState> factory) where T : PlayerState
