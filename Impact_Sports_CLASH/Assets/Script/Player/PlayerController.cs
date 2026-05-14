@@ -24,7 +24,6 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        // ジェネリクスを使った遷移で型安全に
         _playerContext.TransitionTo<PlayerIdleState>();
     }
 

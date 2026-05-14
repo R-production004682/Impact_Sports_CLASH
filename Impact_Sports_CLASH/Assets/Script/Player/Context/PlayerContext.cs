@@ -31,6 +31,7 @@ public class PlayerContext
 
     /// <summary>
     /// 状態遷移をまとめる
+    /// ジェネリックを用いて、遷移先の状態を型で安全に指定できるようにする
     /// </summary>
     /// <typeparam name="T">遷移先の状態の型</typeparam>
     public void TransitionTo<T>() where T : PlayerState
