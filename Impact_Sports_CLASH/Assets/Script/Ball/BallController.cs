@@ -22,6 +22,12 @@ public class BallController : MonoBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
+        if (other.gameObject.CompareTag("Enemy"))
+        {
+            Debug.Log("<color=red>[Ball Controller]Hit Enemy!</color>");
+        }
+
+
         if (!destroyOnCollision) return;
         Destroy(gameObject);
     }
