@@ -1,7 +1,9 @@
-# ADR 0001_Player ステート駆動設計
+# ADR 0001: Player ステート駆動設計
 
 - **Date**: 2026-05-15
 - **Status**: Accepted
+- **Related Spec**: .github/Specs/Impact_Sports_CLASH_GDD_v1.md の Player 制御関連
+- **Related Plan**: .github/Planning/Player_State_Architecture_Plan.md
 
 ## Context (背景と課題)
 
@@ -273,3 +275,11 @@ GC発生リスクがある。
 
 そのため、
 Stateインスタンス管理方式には注意が必要となる。
+
+## Learnings (学習メモ)
+
+- （任意）State Pattern導入で得られた知見や、実装時に発見した注意点を記載してください。
+
+## References (参考資料)
+
+- （任意）関連ドキュメントや参考記事のURLを列挙してください。
