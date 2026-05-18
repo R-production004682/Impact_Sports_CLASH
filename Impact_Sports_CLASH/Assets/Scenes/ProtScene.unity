@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 231821936}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3253,6 +3253,10 @@ MonoBehaviour:
   moveSpeed: 3
   moveDistance: 7
   initialDirection: 1
+  ballObject: {fileID: 8647695459205648167, guid: 190643fe1a7ee3743b16433a896d99a8, type: 3}
+  throwInterval: 3
+  throwForce: 20
+  throwHeightOffset: 0.55
 --- !u!54 &2028637994
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -15,10 +15,23 @@ public class TestEnemyController : MonoBehaviour
     [Range(-1, 1)]
     public int initialDirection = 1;
 
+    [Header("投球設定")]
+    [Tooltip("投げる弾")]
+    public GameObject ballObject;
+    [Tooltip("ボールを投げる間隔")]
+    public float throwInterval = 2.0f;
+    [Tooltip("投げる初速")]
+    public float throwForce = 8.0f;
+    [Tooltip("投球時の高さ")]
+    public float throwHeightOffset = 0.5f;
+
     private Vector3 _startPosition;
     private float _leftX;
     private float _rightX;
     private float _direction;
+
+    private float _throwTimer = 0f;
+    private Transform _playerTransform;
 
     private void Awake()
     {
@@ -42,6 +55,17 @@ public class TestEnemyController : MonoBehaviour
         _rightX = _startPosition.x + Mathf.Abs(moveDistance);
 
         ApplyFacing();
+
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            _playerTransform = playerObj.transform;
+        }
+    }
+
+    private void Update()
+    {
+        HandleThrowing();
     }
 
     private void FixedUpdate()
@@ -78,6 +102,55 @@ public class TestEnemyController : MonoBehaviour
         var euler = transform.eulerAngles;
         euler.y = (_direction > 0) ? 0f : 180f;
         transform.eulerAngles = euler;
+    }
+
+    private void HandleThrowing()
+    {
+        // 必要条件チェック
+        if (ballObject == null) 
+        {
+            return;
+        }
+
+        if (_playerTransform == null) 
+        {
+            return;
+        }
+        
+        if (throwInterval <= 0f)
+        {
+            return;
+        }
+
+        _throwTimer += Time.deltaTime;
+        if (_throwTimer >= throwInterval)
+        {
+            _throwTimer = 0f;
+            ThrowBall();
+        }
+    }
+
+
+    private void ThrowBall()
+    {
+        var spawnPos = transform.position + Vector3.up * throwHeightOffset;
+        
+        var ballInstance = Instantiate(ballObject, spawnPos, Quaternion.identity);
+        var ballRb = ballInstance.GetComponent<Rigidbody>();
+        if (ballRb == null)
+        {
+            Debug.LogError($"投げるオブジェクトにRigidbodyがアタッチされていません。{ballObject.name}にRigidbodyをアタッチしてください。");
+            return;
+        }
+
+        // プレイヤー方向へ向けて初速を与える
+        var targetPos = _playerTransform.position;
+        var toTarget = targetPos - spawnPos;
+        var direction = targetPos - spawnPos;
+        var horizontal = new Vector3(direction.x, 0, direction.z).normalized;
+        var dir = (horizontal + Vector3.up * 0.2f * horizontal.magnitude).normalized;
+
+        ballRb.linearVelocity = dir * throwForce;
     }
 
 
