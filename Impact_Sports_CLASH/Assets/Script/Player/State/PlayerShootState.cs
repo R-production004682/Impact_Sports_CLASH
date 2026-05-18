@@ -27,7 +27,7 @@ public class PlayerShootState : PlayerState
 
         if (ball.TryGetComponent<Rigidbody>(out var rb))
         {
-            rb.AddForce(Context.Transform.forward * settings.ThrowForce, ForceMode.Impulse);
+            rb.AddForce(Camera.main.transform.forward * settings.ThrowForce, ForceMode.Impulse);
         }
     }
 
