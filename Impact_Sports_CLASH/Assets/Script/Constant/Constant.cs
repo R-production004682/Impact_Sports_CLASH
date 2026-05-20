@@ -36,4 +36,13 @@ namespace Clash.Constants
             return (index >= 0 && index < _actionNames.Length) ? _actionNames[index] : _actionNames[0];
         }
     }
+
+    public static class PlayerConfig
+    {
+        // 入力されているかどうかの閾値
+        public const float INPUT_DEADZONE = 0.1f;
+
+        // 停止とみなす速度の閾値
+        public const float STOP_VELOCITY_THRESHOLD = 0.1f;
+    }
 }

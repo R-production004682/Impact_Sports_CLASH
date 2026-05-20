@@ -26,15 +26,22 @@ public class PlayerContext : IPlayerContext
 {
     public PlayerInput PlayerInput { get; }
     public CapsuleCollider CapsuleCollider { get; }
+    public Rigidbody Rigidbody { get; }
     public Transform Transform { get; }
     public SO_PlayerSettings Settings { get; }
     public PlayerState CurrentState { get; private set; }
 
-    public PlayerContext(PlayerInput playerInput, CapsuleCollider capsuleCollider, Transform transform, SO_PlayerSettings settings)
+    public PlayerContext(
+        PlayerInput playerInput, 
+        CapsuleCollider capsuleCollider, 
+        Rigidbody rb, 
+        Transform transform, 
+        SO_PlayerSettings settings)
     {
         this.PlayerInput = playerInput;
         this.CapsuleCollider = capsuleCollider;
         this.Transform = transform;
+        this.Rigidbody = rb;
         this.Settings = settings;
     }
 

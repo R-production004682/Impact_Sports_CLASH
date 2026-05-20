@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: PlayerSettings
   m_EditorClassIdentifier: Assembly-CSharp::SO_PlayerSettings
   MoveSpeed: 5
+  MaxMoveSpeed: 10
+  GrandFriction: 2
+  Acceleration: 80
   ThrowForce: 20
   CooldownTime: 1
   BallPrefab: {fileID: 8647695459205648167, guid: 190643fe1a7ee3743b16433a896d99a8, type: 3}
