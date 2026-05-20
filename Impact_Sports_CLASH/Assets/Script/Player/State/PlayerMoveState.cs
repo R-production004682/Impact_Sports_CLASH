@@ -8,7 +8,7 @@ public class PlayerMoveState : PlayerState
     public override void Execute()
     {
         var moveInput = GetMoveInput();
-        if ( Context.Rigidbody.linearVelocity.magnitude < PlayerConfig.STOP_VELOCITY_THRESHOLD)
+        if (Context.Rigidbody.linearVelocity.magnitude < PlayerConfig.STOP_VELOCITY_THRESHOLD)
         {
             Context.TransitionTo<PlayerIdleState>();
             return;
