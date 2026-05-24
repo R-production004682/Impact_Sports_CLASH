@@ -6,7 +6,14 @@ public class PlayerShootState : PlayerState
     
     public override void Enter()
     {
-        Debug.Log("<color=green>[Player] Enter: Shooting State</color>");
+        if (!Context.BallHolder.TryConsumeBall())
+        {
+            // ボールがない場合は投げない
+            Debug.LogWarning("[Player] ボールがありません");
+            return;
+        }
+
+        Debug.Log($"<color=green>[Player] Enter: Shooting State</color> (残り: {Context.BallHolder.BallCount})");
         PerformThrow();
     }
 
@@ -22,8 +29,14 @@ public class PlayerShootState : PlayerState
         //        必要に応じてオブジェクトプーリングの導入を検討すること
         var ball = Object.Instantiate(
             settings.BallPrefab, 
-            Context.Transform.position + Context.Transform.up,  // 射出位置を一旦プレイヤーの頭上に設定
+            Context.releasePointTransform.position,
             Quaternion.identity);
+
+        // 投げた人自身との衝突を無視する（生成直後の誤判定防止）
+        if (ball.TryGetComponent<Collider>(out var ballCollider))
+        {
+            Physics.IgnoreCollision(ballCollider, Context.CapsuleCollider);
+        }
 
         if (ball.TryGetComponent<Rigidbody>(out var rb))
         {
@@ -33,7 +46,14 @@ public class PlayerShootState : PlayerState
 
     public override void Execute()
     {
-        // 投げ終わりのモーション時間待機などの後、Idleへ戻る（今回は即時）
+        // 投げ終わり後、移動入力があれば移動状態へ戻る（移動中に投げた場合の復帰）
+        var moveInput = GetMoveInput();
+        if (moveInput.magnitude >= Clash.Constants.PlayerConfig.INPUT_DEADZONE)
+        {
+            Context.TransitionTo<PlayerMoveState>();
+            return;
+        }
+
         Context.TransitionTo<PlayerIdleState>();
     }
 }
