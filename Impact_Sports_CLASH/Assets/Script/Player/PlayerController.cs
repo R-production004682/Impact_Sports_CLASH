@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private PlayerInput playerInput;
     [SerializeField] private CapsuleCollider capsuleCollider;
+    [SerializeField] private Rigidbody rb;
     [SerializeField] private SO_PlayerSettings settings;
 
     private PlayerContext _playerContext;
@@ -22,7 +23,14 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        _playerContext = new PlayerContext(playerInput, capsuleCollider, transform, settings);
+        _playerContext = new PlayerContext(
+            playerInput: playerInput,
+            capsuleCollider: capsuleCollider, 
+            rb: rb, 
+            transform: transform,
+            settings: settings);
+
+        _playerContext.Rigidbody.freezeRotation = true;
     }
 
     private void Start()
@@ -35,11 +43,10 @@ public class PlayerController : MonoBehaviour
         _playerContext.CurrentState?.Execute();
     }
 
-    // TODO : 将来的に使うので一旦コメントアウト
-    //private void FixedUpdate()
-    //{
-    //    _playerContext.CurrentState?.FixedExecute();
-    //}
+    private void FixedUpdate()
+    {
+        _playerContext.CurrentState?.FixedExecute();
+    }
 
     #region 必須コンポーネントがアタッチされているかのチェック
     private bool ValidateRequiredComponents()
@@ -49,6 +56,7 @@ public class PlayerController : MonoBehaviour
             this,
             playerInput,
             capsuleCollider,
+            rb,
             settings
         );
     }
