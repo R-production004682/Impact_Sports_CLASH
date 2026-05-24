@@ -143,6 +143,12 @@ public class TestEnemyController : MonoBehaviour
             return;
         }
 
+        // エネミー自身との衝突を無視する（生成直後の誤判定防止）
+        if (ballInstance.TryGetComponent<Collider>(out var ballCollider))
+        {
+            Physics.IgnoreCollision(ballCollider, capsuleCollider);
+        }
+
         // プレイヤー方向へ向けて初速を与える
         var targetPos = _playerTransform.position;
         var toTarget = targetPos - spawnPos;

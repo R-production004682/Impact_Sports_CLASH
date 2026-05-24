@@ -13,4 +13,8 @@ public class SO_PlayerSettings : ScriptableObject
     [Tooltip("投げる力")] public float ThrowForce = 20f;
     [Tooltip("クールダウン時間")] public float CooldownTime = 1.0f;
     [Tooltip("ボールのプレハブ")] public GameObject BallPrefab;
+
+    [Header("Ball Hold")]
+    [Tooltip("最大所持数")] public int MaxHoldCount = 2;
+    [Tooltip("初期所持数")] public int InitialBallCount = 2;
 }

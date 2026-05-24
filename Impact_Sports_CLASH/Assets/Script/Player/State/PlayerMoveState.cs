@@ -15,7 +15,7 @@ public class PlayerMoveState : PlayerState
         }
 
         // 射撃入力があり、ボールを所持していれば射撃状態へ遷移（移動中でも投げられる）
-        if (IsShotTriggered() && Context.CanShoot)
+        if (IsShotTriggered() && Context.BallHolder.CanShoot)
         {
             Context.TransitionTo<PlayerShootState>();
             return;

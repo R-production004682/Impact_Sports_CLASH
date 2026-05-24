@@ -10,6 +10,7 @@ public interface IPlayerContext
     Transform Transform { get; }
     SO_PlayerSettings Settings { get; }
     PlayerState CurrentState { get; }
+    PlayerBallHolder BallHolder { get; }
     void TransitionTo<T>() where T : PlayerState;
 
     // 状態インスタンスのカスタム生成を登録可能にする（テストや最適化で利用予定）
@@ -30,19 +31,30 @@ public class PlayerContext : IPlayerContext
     public Transform Transform { get; }
     public SO_PlayerSettings Settings { get; }
     public PlayerState CurrentState { get; private set; }
+    public Transform releasePointTransform { get; }
+    public Transform holdPointTransform { get; }
+
+    public PlayerBallHolder BallHolder { get; }
 
     public PlayerContext(
         PlayerInput playerInput, 
         CapsuleCollider capsuleCollider, 
         Rigidbody rb, 
         Transform transform, 
-        SO_PlayerSettings settings)
+        SO_PlayerSettings settings,
+        Transform releasePointTransform,
+        Transform holdPointTransform)
     {
         this.PlayerInput = playerInput;
         this.CapsuleCollider = capsuleCollider;
         this.Transform = transform;
         this.Rigidbody = rb;
         this.Settings = settings;
+        this.releasePointTransform = releasePointTransform;
+        this.holdPointTransform = holdPointTransform;
+
+        // ボール管理クラスの初期化
+        this.BallHolder = new PlayerBallHolder(settings, holdPointTransform);
     }
 
     // 状態をキャッシュしてGCを防止

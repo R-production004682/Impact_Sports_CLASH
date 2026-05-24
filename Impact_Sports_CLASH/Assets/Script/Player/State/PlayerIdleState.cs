@@ -21,8 +21,8 @@ public class PlayerIdleState : PlayerState
             return;
         }
 
-        // 射撃入力があれば射撃状態へ遷移
-        if (IsShotTriggered())
+        // 射撃入力があり、ボールを所持していれば射撃状態へ遷移
+        if (IsShotTriggered() && Context.BallHolder.CanShoot)
         {
             Context.TransitionTo<PlayerShootState>();
             return;

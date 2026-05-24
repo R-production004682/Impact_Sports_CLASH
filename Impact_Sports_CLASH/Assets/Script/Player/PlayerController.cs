@@ -8,6 +8,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerInput playerInput;
     [SerializeField] private CapsuleCollider capsuleCollider;
     [SerializeField] private Rigidbody rb;
+    [SerializeField] private GameObject releasePoint;
+    [SerializeField] private GameObject holdPoint;
     [SerializeField] private SO_PlayerSettings settings;
 
     private PlayerContext _playerContext;
@@ -28,13 +30,16 @@ public class PlayerController : MonoBehaviour
             capsuleCollider: capsuleCollider, 
             rb: rb, 
             transform: transform,
-            settings: settings);
+            settings: settings,
+            releasePointTransform: releasePoint.transform,
+            holdPointTransform: holdPoint.transform);
 
         _playerContext.Rigidbody.freezeRotation = true;
     }
 
     private void Start()
     {
+        _playerContext.BallHolder.InitializeBalls(settings.InitialBallCount);
         _playerContext.TransitionTo<PlayerIdleState>();
     }
 
@@ -46,6 +51,22 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         _playerContext.CurrentState?.FixedExecute();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (!collision.gameObject.CompareTag("Ball"))
+        {
+            return;
+        }
+        
+
+        // ボールを獲得
+        if (_playerContext.BallHolder.TryAddBall())
+        {
+            Debug.Log($"<color=cyan>[Player] ボールをキャッチ！ (所持: {_playerContext.BallHolder.BallCount})</color>");
+            Destroy(collision.gameObject);
+        }
     }
 
     #region 必須コンポーネントがアタッチされているかのチェック
