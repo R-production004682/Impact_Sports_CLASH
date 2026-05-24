@@ -33,7 +33,14 @@ public class PlayerShootState : PlayerState
 
     public override void Execute()
     {
-        // 投げ終わりのモーション時間待機などの後、Idleへ戻る（今回は即時）
+        // 投げ終わり後、移動入力があれば移動状態へ戻る（移動中に投げた場合の復帰）
+        var moveInput = GetMoveInput();
+        if (moveInput.magnitude >= Clash.Constants.PlayerConfig.INPUT_DEADZONE)
+        {
+            Context.TransitionTo<PlayerMoveState>();
+            return;
+        }
+
         Context.TransitionTo<PlayerIdleState>();
     }
 }
