@@ -3,6 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// プレイヤーのボール所持・表示を管理するクラス
+/// TODO 将来的にボール周り全般の処理をObjectPoolの実装にする
 /// </summary>
 public class PlayerBallHolder
 {

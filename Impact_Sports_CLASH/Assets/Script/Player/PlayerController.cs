@@ -78,7 +78,9 @@ public class PlayerController : MonoBehaviour
             playerInput,
             capsuleCollider,
             rb,
-            settings
+            settings,
+            releasePoint,
+            holdPoint
         );
     }
     #endregion
