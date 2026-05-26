@@ -14,6 +14,19 @@ public class PlayerIdleState : PlayerState
     {
         var moveInput = GetMoveInput();
 
+        // 射撃入力があり、ボールを所持していれば射撃状態へ遷移
+        if (IsShotTriggered() && Context.BallHolder.CanShoot)
+        {
+            Context.TransitionTo<PlayerShootState>();
+            return;
+        }
+
+        if (IsDodgeTriggered())
+        {
+            Context.TransitionTo<PlayerDodgeState>();
+            return;
+        }
+
         // 移動入力が一定以上あれば移動状態へ遷移
         if (moveInput.magnitude >= PlayerConfig.INPUT_DEADZONE)
         {
@@ -21,11 +34,5 @@ public class PlayerIdleState : PlayerState
             return;
         }
 
-        // 射撃入力があり、ボールを所持していれば射撃状態へ遷移
-        if (IsShotTriggered() && Context.BallHolder.CanShoot)
-        {
-            Context.TransitionTo<PlayerShootState>();
-            return;
-        }
     }
 }

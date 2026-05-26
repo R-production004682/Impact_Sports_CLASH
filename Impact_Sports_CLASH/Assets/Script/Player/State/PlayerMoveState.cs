@@ -21,6 +21,13 @@ public class PlayerMoveState : PlayerState
             return;
         }
 
+        // 回避入力されたら回避へ遷移
+        if (IsDodgeTriggered())
+        {
+            Context.TransitionTo<PlayerDodgeState>();
+            return;
+        }
+
         // NOTE : 必要に応じて下記のような処理を追加していく
         // ジャンプ入力があればジャンプ状態へ遷移
         // スライディング入力とかあれば、スライディング状態へ遷移

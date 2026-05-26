@@ -12,10 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf2b823695ff25b498150d9240d2526a, type: 3}
   m_Name: PlayerSettings
   m_EditorClassIdentifier: Assembly-CSharp::SO_PlayerSettings
-  MoveSpeed: 5
-  MaxMoveSpeed: 10
+  MoveSpeed: 4
+  MaxMoveSpeed: 8
   GrandFriction: 2
   Acceleration: 80
+  DodgeSpeed: 20
+  DodgeDuration: 0.18
+  DodgeCooldown: 1
   ThrowForce: 20
   CooldownTime: 1
   BallPrefab: {fileID: 8647695459205648167, guid: 190643fe1a7ee3743b16433a896d99a8, type: 3}
+  MaxHoldCount: 2
+  InitialBallCount: 2

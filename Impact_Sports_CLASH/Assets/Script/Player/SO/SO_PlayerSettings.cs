@@ -9,6 +9,11 @@ public class SO_PlayerSettings : ScriptableObject
     [Tooltip("摩擦")] public float GrandFriction = 0.1f;
     [Tooltip("加速度")] public float Acceleration = 10f;
 
+    [Header("Dodge")]
+    [Tooltip("回避速度")] public float DodgeSpeed = 18.0f;
+    [Tooltip("回避間隔")] public float DodgeDuration = 0.2f;
+    [Tooltip("回避クールダウン")] public float DodgeCooldown = 0.6f;
+
     [Header("Shooting")]
     [Tooltip("投げる力")] public float ThrowForce = 20f;
     [Tooltip("クールダウン時間")] public float CooldownTime = 1.0f;
