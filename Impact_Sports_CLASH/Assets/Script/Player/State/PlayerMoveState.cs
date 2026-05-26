@@ -7,13 +7,6 @@ public class PlayerMoveState : PlayerState
 
     public override void Execute()
     {
-        var moveInput = GetMoveInput();
-        if (Context.Rigidbody.linearVelocity.magnitude < PlayerConfig.STOP_VELOCITY_THRESHOLD)
-        {
-            Context.TransitionTo<PlayerIdleState>();
-            return;
-        }
-
         // 射撃入力があり、ボールを所持していれば射撃状態へ遷移（移動中でも投げられる）
         if (IsShotTriggered() && Context.BallHolder.CanShoot)
         {
@@ -25,6 +18,12 @@ public class PlayerMoveState : PlayerState
         if (IsDodgeTriggered())
         {
             Context.TransitionTo<PlayerDodgeState>();
+            return;
+        }
+
+        if (Context.Rigidbody.linearVelocity.magnitude < PlayerConfig.STOP_VELOCITY_THRESHOLD)
+        {
+            Context.TransitionTo<PlayerIdleState>();
             return;
         }
 

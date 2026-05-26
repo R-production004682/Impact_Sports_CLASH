@@ -12,7 +12,6 @@ public class SO_PlayerSettings : ScriptableObject
     [Header("Dodge")]
     [Tooltip("回避速度")] public float DodgeSpeed = 18.0f;
     [Tooltip("回避間隔")] public float DodgeDuration = 0.2f;
-    [Tooltip("回避クールダウン")] public float DodgeCooldown = 0.6f;
 
     [Header("Shooting")]
     [Tooltip("投げる力")] public float ThrowForce = 20f;

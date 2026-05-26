@@ -12,13 +12,7 @@ public class PlayerDodgeState : PlayerState
         _timer = 0f;
         _dodgeDirection = ResolveDodgeDirection();
 
-        var velocity = Context.Rigidbody.linearVelocity;
-        Context.Rigidbody.linearVelocity = 
-            new Vector3(
-                _dodgeDirection.x * Context.Settings.DodgeSpeed,
-                0.0f,
-                _dodgeDirection.z * Context.Settings.DodgeSpeed
-            );
+        ApplyDodgeVelocity();
     }
     
     public override void Execute()
@@ -37,17 +31,23 @@ public class PlayerDodgeState : PlayerState
         }
     }
 
-    public override void FixedExecute()
+    public override void FixedExecute() => ApplyDodgeVelocity();
+
+    /// <summary>
+    /// 回避時の速度を適用する
+    /// </summary>
+    private void ApplyDodgeVelocity()
     {
         var velocity = Context.Rigidbody.linearVelocity;
 
-        Context.Rigidbody.linearVelocity = 
+        Context.Rigidbody.linearVelocity =
             new Vector3(
                 _dodgeDirection.x * Context.Settings.DodgeSpeed,
                 velocity.y,
                 _dodgeDirection.z * Context.Settings.DodgeSpeed
             );
     }
+
 
     /// <summary>
     /// 回避方向を決定させる
@@ -79,5 +79,4 @@ public class PlayerDodgeState : PlayerState
 
         return input.y > 0 ? forward : -forward;
     }
-
 }
