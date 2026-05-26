@@ -3,64 +3,78 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
 public class TestEnemyController : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private Rigidbody rb;
     [SerializeField] private CapsuleCollider capsuleCollider;
+    [SerializeField] private GameObject ballPrefab;
 
-    [Header("移動設定")]
-    [Tooltip("左右に移動する速度")]
-    public float moveSpeed = 5.0f;
-    [Tooltip("開始位置からの左右移動幅")]
-    public float moveDistance = 3.0f;
-    [Tooltip("開始時の向き。1=右、-1=左")]
+    [Header("Movement")]
+    [SerializeField, Tooltip("左右に移動する速度")]
+    private float moveSpeed = 5.0f;
+
+    [SerializeField, Tooltip("開始位置からの左右移動幅")]
+    private float moveDistance = 3.0f;
+
+    [SerializeField, Tooltip("開始時の向き。1=右、-1=左")]
     [Range(-1, 1)]
-    public int initialDirection = 1;
+    private int initialDirection = 1;
 
-    [Header("投球設定")]
-    [Tooltip("投げる弾")]
-    public GameObject ballObject;
-    [Tooltip("ボールを投げる間隔")]
-    public float throwInterval = 2.0f;
-    [Tooltip("投げる初速")]
-    public float throwForce = 8.0f;
-    [Tooltip("投球時の高さ")]
-    public float throwHeightOffset = 0.5f;
+    [Header("Throw")]
+    [SerializeField, Tooltip("ボールを投げる間隔")]
+    private float throwInterval = 2.0f;
+
+    [SerializeField, Tooltip("投げる初速")]
+    private float throwSpeed = 8.0f;
+
+    [SerializeField, Tooltip("投球位置の高さ")]
+    private float throwHeightOffset = 0.5f;
+
+    [SerializeField, Tooltip("プレイヤーのどの高さを狙うか")]
+    private float targetHeightOffset = 0.8f;
+
+    [SerializeField, Tooltip("固定の山なり具合")]
+    private float throwUpwardBias = 0.2f;
+
+    [SerializeField, Tooltip("左右方向の制球ブレ角度（ブレてほしく無い場合は「0」）")]
+    private float horizontalSpreadAngle = 5.0f;
+
+    [SerializeField, Tooltip("上下方向の制球ブレ（ブレてほしく無い場合は「0」）")]
+    private float verticalSpread = 0.08f;
 
     private Vector3 _startPosition;
     private float _leftX;
     private float _rightX;
     private float _direction;
-
-    private float _throwTimer = 0f;
+    private float _throwTimer;
     private Transform _playerTransform;
+
+    private void Reset()
+    {
+        rb = GetComponent<Rigidbody>();
+        capsuleCollider = GetComponent<CapsuleCollider>();
+    }
 
     private void Awake()
     {
-        if (ValidateRequiredComponents())
+        if (!TryResolveReferences())
         {
             enabled = false;
-            Debug.LogError($"必須コンポーネントが不足しているため、{gameObject.name}のTestEnemyControllerを無効化しました。");
+            return;
         }
+
+        rb.freezeRotation = true;
     }
 
     private void Start()
     {
-        // 弾当てられて転倒したら困るので、回転はさせない
-        rb.freezeRotation = true;
-
         _startPosition = transform.position;
-        _direction = initialDirection == 0 ? 1 : Mathf.Clamp(initialDirection, -1, 1); // 0は右向きとみなす
+        _direction = initialDirection == 0 ? 1f : Mathf.Sign(initialDirection);
 
-        // 移動範囲の算出
         _leftX = _startPosition.x - Mathf.Abs(moveDistance);
         _rightX = _startPosition.x + Mathf.Abs(moveDistance);
 
         ApplyFacing();
-
-        var playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
-        {
-            _playerTransform = playerObj.transform;
-        }
+        FindPlayer();
     }
 
     private void Update()
@@ -70,142 +84,183 @@ public class TestEnemyController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // 移動距離が0の場合やRigidbodyがアタッチされていない場合は移動処理をスキップ
-        if (Mathf.Approximately(moveDistance, 0f) || rb == null)
+        HandleMovement();
+    }
+
+    /// <summary>
+    /// 必須コンポーネントがアタッチされているか確認し、なければ取得を試みる
+    /// </summary>
+    /// <returns></returns>
+    private bool TryResolveReferences()
+    {
+        if (rb == null)
+        {
+            rb = GetComponent<Rigidbody>();
+        }
+
+        if (capsuleCollider == null)
+        {
+            capsuleCollider = GetComponent<CapsuleCollider>();
+        }
+
+        if (rb == null || capsuleCollider == null)
+        {
+            Debug.LogError($"{nameof(TestEnemyController)}: Rigidbody または CapsuleCollider が見つかりません。", this);
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 標的（Player）を探す
+    /// </summary>
+    private void FindPlayer()
+    {
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj == null)
+        {
+            Debug.LogWarning($"{nameof(TestEnemyController)}: Player タグのオブジェクトが見つかりません。", this);
+            return;
+        }
+
+        _playerTransform = playerObj.transform;
+    }
+
+    /// <summary>
+    /// 開始位置を中心に moveDistance の範囲で左右に往復
+    /// </summary>
+    private void HandleMovement()
+    {
+        if (Mathf.Approximately(moveDistance, 0f) || Mathf.Approximately(moveSpeed, 0f))
         {
             return;
         }
 
-        var delta = Vector3.right * _direction * moveSpeed * Time.fixedDeltaTime;
-        var newPos = rb.position + delta;
+        var nextPosition = rb.position + Vector3.right * _direction * moveSpeed * Time.fixedDeltaTime;
 
-        // 移動範囲チェックと方向転換
-        if (_direction > 0 && newPos.x >= _rightX)
+        if (_direction > 0f && nextPosition.x >= _rightX)
         {
-            newPos.x = _rightX;
-            _direction = -1;
+            nextPosition.x = _rightX;
+            _direction = -1f;
             ApplyFacing();
         }
-        else if (_direction < 0 && newPos.x <= _leftX)
+        else if (_direction < 0f && nextPosition.x <= _leftX)
         {
-            newPos.x = _leftX;
-            _direction = 1;
+            nextPosition.x = _leftX;
+            _direction = 1f;
             ApplyFacing();
         }
 
-        rb.MovePosition(newPos);
+        rb.MovePosition(nextPosition);
     }
 
-    // 見た目の向きをX軸方向に合わせて反転（Y回転で反転）
-    private void ApplyFacing()
-    {
-        var euler = transform.eulerAngles;
-        euler.y = (_direction > 0) ? 0f : 180f;
-        transform.eulerAngles = euler;
-    }
-
+    /// <summary>
+    /// Playter を狙って一定間隔でボールを投げる
+    /// あえて制球にブレを持たせる（本物っぽくするため）
+    /// </summary>
     private void HandleThrowing()
     {
-        // 必要条件チェック
-        if (ballObject == null) 
-        {
-            return;
-        }
-
-        if (_playerTransform == null) 
-        {
-            return;
-        }
-        
-        if (throwInterval <= 0f)
+        if (ballPrefab == null || _playerTransform == null || throwInterval <= 0f)
         {
             return;
         }
 
         _throwTimer += Time.deltaTime;
-        if (_throwTimer >= throwInterval)
+        if (_throwTimer < throwInterval)
         {
-            _throwTimer = 0f;
-            ThrowBall();
-        }
-    }
-
-
-    private void ThrowBall()
-    {
-        var spawnPos = transform.position + Vector3.up * throwHeightOffset;
-        
-        var ballInstance = Instantiate(ballObject, spawnPos, Quaternion.identity);
-        var ballRb = ballInstance.GetComponent<Rigidbody>();
-        if (ballRb == null)
-        {
-            Debug.LogError($"投げるオブジェクトにRigidbodyがアタッチされていません。{ballObject.name}にRigidbodyをアタッチしてください。");
             return;
         }
 
-        // エネミー自身との衝突を無視する（生成直後の誤判定防止）
+        _throwTimer = 0f;
+        ThrowBall();
+    }
+
+    /// <summary>
+    /// 投げる処理
+    /// </summary>
+    private void ThrowBall()
+    {
+        var spawnPosition = transform.position + Vector3.up * throwHeightOffset;
+        var ballInstance = Instantiate(ballPrefab, spawnPosition, Quaternion.identity);
+
+        if (!ballInstance.TryGetComponent<Rigidbody>(out var ballRb))
+        {
+            Debug.LogError($"{nameof(TestEnemyController)}: {ballPrefab.name} に Rigidbody がありません。", ballPrefab);
+            Destroy(ballInstance);
+            return;
+        }
+
+        IgnoreSelfCollision(ballInstance);
+        ballRb.linearVelocity = CalculateThrowDirection(spawnPosition) * throwSpeed;
+    }
+
+    /// <summary>
+    /// 投げる方向を計算
+    /// </summary>
+    /// <param name="spawnPosition"></param>
+    /// <returns></returns>
+    private Vector3 CalculateThrowDirection(Vector3 spawnPosition)
+    {
+        var targetPosition = _playerTransform.position + Vector3.up * targetHeightOffset;
+        var toTarget = targetPosition - spawnPosition;
+
+        var horizontal = new Vector3(toTarget.x, 0f, toTarget.z);
+        if (horizontal.sqrMagnitude < 0.001f)
+        {
+            horizontal = transform.forward;
+        }
+
+        horizontal.Normalize();
+
+        var spreadYaw = Random.Range(-horizontalSpreadAngle, horizontalSpreadAngle);
+        horizontal = Quaternion.AngleAxis(spreadYaw, Vector3.up) * horizontal;
+
+        var upward = throwUpwardBias + Random.Range(-verticalSpread, verticalSpread);
+        return (horizontal + Vector3.up * upward).normalized;
+    }
+
+    /// <summary>
+    /// 自身が投げたボールと衝突しないようにする
+    /// </summary>
+    /// <param name="ballInstance"></param>
+    private void IgnoreSelfCollision(GameObject ballInstance)
+    {
+        if (capsuleCollider == null)
+        {
+            return;
+        }
+
         if (ballInstance.TryGetComponent<Collider>(out var ballCollider))
         {
             Physics.IgnoreCollision(ballCollider, capsuleCollider);
         }
-
-        // プレイヤー方向へ向けて初速を与える
-        var targetPos = _playerTransform.position;
-        var toTarget = targetPos - spawnPos;
-        var direction = targetPos - spawnPos;
-        var horizontal = new Vector3(direction.x, 0, direction.z).normalized;
-        var dir = (horizontal + Vector3.up * 0.2f * horizontal.magnitude).normalized;
-
-        ballRb.linearVelocity = dir * throwForce;
     }
 
-
-    #region 必須コンポーネントがアタッチされているかのチェック
-    private bool ValidateRequiredComponents()
+    /// <summary>
+    /// オブジェクトの向きを移動方向に合わせて切り替える
+    /// </summary>
+    private void ApplyFacing()
     {
-        var isValid = false;
-
-        if (rb == null)
-        {
-            isValid = true;
-        }
-
-        if (capsuleCollider == null)
-        {
-            isValid = true;
-        }
-
-        if (isValid)
-        {
-            Debug.LogError($"必須コンポーネントがアタッチされていません。{gameObject.name}にRigidbodyとCapsuleColliderをアタッチしてください。");
-        }
-
-        return isValid;
+        var euler = transform.eulerAngles;
+        euler.y = _direction > 0f ? 0f : 180f;
+        transform.eulerAngles = euler;
     }
-    #endregion
 
 #if UNITY_EDITOR
-    // シーンビューで移動範囲が見えるようにする
     private void OnDrawGizmosSelected()
     {
-        if (!Application.isPlaying)
-        {
-            _startPosition = transform.position;
-            _leftX = _startPosition.x - Mathf.Abs(moveDistance);
-            _rightX = _startPosition.x + Mathf.Abs(moveDistance);
-        }
+        var center = Application.isPlaying ? _startPosition : transform.position;
+        var leftX = center.x - Mathf.Abs(moveDistance);
+        var rightX = center.x + Mathf.Abs(moveDistance);
+
+        var leftCenter = new Vector3(leftX, transform.position.y, transform.position.z);
+        var rightCenter = new Vector3(rightX, transform.position.y, transform.position.z);
 
         UnityEditor.Handles.color = Color.green;
-
-        // 線の太さを指定（ピクセル単位）
-        float thickness = 4f;
-
-        Vector3 leftCenter = new Vector3(_leftX, transform.position.y, transform.position.z);
-        Vector3 rightCenter = new Vector3(_rightX, transform.position.y, transform.position.z);
-
-        UnityEditor.Handles.DrawAAPolyLine(thickness, leftCenter - Vector3.up * 0.1f, leftCenter + Vector3.up * 0.1f);
-        UnityEditor.Handles.DrawAAPolyLine(thickness, rightCenter - Vector3.up * 0.1f, rightCenter + Vector3.up * 0.1f);
-        UnityEditor.Handles.DrawAAPolyLine(thickness, leftCenter, rightCenter);
+        UnityEditor.Handles.DrawAAPolyLine(4f, leftCenter - Vector3.up * 0.1f, leftCenter + Vector3.up * 0.1f);
+        UnityEditor.Handles.DrawAAPolyLine(4f, rightCenter - Vector3.up * 0.1f, rightCenter + Vector3.up * 0.1f);
+        UnityEditor.Handles.DrawAAPolyLine(4f, leftCenter, rightCenter);
     }
 #endif
 }

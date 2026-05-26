@@ -3345,13 +3345,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TestEnemyController
   rb: {fileID: 2028637994}
   capsuleCollider: {fileID: 2028637989}
-  moveSpeed: 3
+  ballPrefab: {fileID: 8647695459205648167, guid: 190643fe1a7ee3743b16433a896d99a8, type: 3}
+  moveSpeed: 1.5
   moveDistance: 7
   initialDirection: 1
-  ballObject: {fileID: 8647695459205648167, guid: 190643fe1a7ee3743b16433a896d99a8, type: 3}
   throwInterval: 3
-  throwForce: 20
-  throwHeightOffset: 0.55
+  throwSpeed: 20
+  throwHeightOffset: 0.7
+  targetHeightOffset: 0.7
+  throwUpwardBias: 0.05
+  horizontalSpreadAngle: 5
+  verticalSpread: 0.05
 --- !u!54 &2028637994
 Rigidbody:
   m_ObjectHideFlags: 0
