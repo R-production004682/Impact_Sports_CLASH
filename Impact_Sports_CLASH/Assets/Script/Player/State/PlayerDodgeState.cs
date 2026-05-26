@@ -2,8 +2,8 @@ using Clash.Constants;
 using UnityEngine;
 public class PlayerDodgeState : PlayerState
 {
-    private Vector3 _dodgeDirection;
     private float _timer;
+    private Vector3 _dodgeDirection;
 
     public PlayerDodgeState(PlayerContext context) : base(context){}
 
