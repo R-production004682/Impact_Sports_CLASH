@@ -53,22 +53,6 @@ public class PlayerController : MonoBehaviour
         _playerContext.CurrentState?.FixedExecute();
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (!collision.gameObject.CompareTag("Ball"))
-        {
-            return;
-        }
-        
-
-        // ボールを獲得
-        if (_playerContext.BallHolder.TryAddBall())
-        {
-            Debug.Log($"<color=cyan>[Player] ボールをキャッチ！ (所持: {_playerContext.BallHolder.BallCount})</color>");
-            Destroy(collision.gameObject);
-        }
-    }
-
     #region 必須コンポーネントがアタッチされているかのチェック
     private bool ValidateRequiredComponents()
     {
@@ -84,4 +68,43 @@ public class PlayerController : MonoBehaviour
         );
     }
     #endregion
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        if (settings == null)
+        {
+            return;
+        }
+
+        var center = transform.position + transform.forward * settings.CatchForwardOffset;
+        var radius = settings.CatchRadius;
+
+        // キャッチウィンドウ中は緑、それ以外は黄色
+        var isCatching = Application.isPlaying && _playerContext?.CurrentState is PlayerCatchState;
+
+        Gizmos.color = isCatching ? Color.green : Color.yellow;
+        Gizmos.DrawWireSphere(center, radius);
+
+        // 半透明の塗り球
+        var fillColor = isCatching
+            ? new Color(0f, 1f, 0f, 0.15f)
+            : new Color(1f, 1f, 0f, 0.08f);
+
+        Gizmos.color = fillColor;
+        Gizmos.DrawSphere(center, radius);
+        Gizmos.color = isCatching ? Color.green : Color.yellow;
+        Gizmos.DrawLine(transform.position, center);
+
+        // ラベル表示
+        var style = new GUIStyle
+        {
+            normal = { textColor = isCatching ? Color.green : Color.yellow },
+            fontSize = 11,
+            fontStyle = FontStyle.Bold
+        };
+        var label = isCatching ? "● CATCH ACTIVE" : "○ Catch Range";
+        UnityEditor.Handles.Label(center + Vector3.up * (radius + 0.15f), label, style);
+    }
+#endif
 }
