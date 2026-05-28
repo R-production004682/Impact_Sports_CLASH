@@ -11,6 +11,7 @@ namespace Clash.Constants
         Move,
         Shoot,
         Jump,
+        Dodge,
         Interact
     }
 
@@ -24,6 +25,7 @@ namespace Clash.Constants
             "Move",
             "Shoot",
             "Jump",
+            "Dodge",
             "Interact"
         };
 
@@ -44,5 +46,8 @@ namespace Clash.Constants
 
         // 停止とみなす速度の閾値
         public const float STOP_VELOCITY_THRESHOLD = 0.1f;
+
+        // 接地判定に使うレイヤー名
+        public const string GROUND_LAYER_NAME = "Ground";
     }
 }
