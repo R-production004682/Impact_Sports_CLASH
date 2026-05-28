@@ -21,4 +21,9 @@ public class SO_PlayerSettings : ScriptableObject
     [Header("Ball Hold")]
     [Tooltip("最大所持数")] public int MaxHoldCount = 2;
     [Tooltip("初期所持数")] public int InitialBallCount = 2;
+
+    [Header("Catch")]
+    [Tooltip("キャッチ判定の球半径")] public float CatchRadius = 0.5f;
+    [Tooltip("プレイヤー前方へのオフセット")] public float CatchForwardOffset = 0.5f;
+    [Tooltip("キャッチウィンドウの持続時間（秒）")] public float CatchWindowDuration = 0.25f;
 }

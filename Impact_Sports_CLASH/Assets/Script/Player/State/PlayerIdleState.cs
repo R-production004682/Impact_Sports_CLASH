@@ -27,6 +27,12 @@ public class PlayerIdleState : PlayerState
             return;
         }
 
+        if (IsCatchTriggered())
+        {
+            Context.TransitionTo<PlayerCatchState>();
+            return;
+        }
+
         // 移動入力が一定以上あれば移動状態へ遷移
         if (moveInput.magnitude >= PlayerConfig.INPUT_DEADZONE)
         {

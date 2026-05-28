@@ -8,6 +8,7 @@ public abstract class PlayerState
     private readonly InputAction _shootAction;
     private readonly InputAction _moveAction;
     private readonly InputAction _dodgeAction;
+    private readonly InputAction _catchAction;
 
     protected PlayerState(PlayerContext context)
     {
@@ -17,6 +18,7 @@ public abstract class PlayerState
         _shootAction = context.PlayerInput.actions[InputActionId.Shoot.ToIdName()];
         _moveAction = context.PlayerInput.actions[InputActionId.Move.ToIdName()];
         _dodgeAction = context.PlayerInput.actions[InputActionId.Dodge.ToIdName()];
+        _catchAction = context.PlayerInput.actions[InputActionId.Catch.ToIdName()];
     }
 
     /// <summary> 状態に入ったときに呼ばれる(Startメソッドと同じ) </summary>
@@ -35,4 +37,6 @@ public abstract class PlayerState
     protected bool IsShotTriggered() => _shootAction.triggered;
     protected Vector2 GetMoveInput() => _moveAction.ReadValue<Vector2>();
     protected bool IsDodgeTriggered() => _dodgeAction.triggered;
+    protected bool IsCatchTriggered() => _catchAction.triggered;
+    protected bool HasMoveInput() => GetMoveInput().sqrMagnitude >= PlayerConfig.INPUT_DEADZONE * PlayerConfig.INPUT_DEADZONE;
 }

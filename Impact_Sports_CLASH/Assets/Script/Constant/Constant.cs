@@ -12,7 +12,8 @@ namespace Clash.Constants
         Shoot,
         Jump,
         Dodge,
-        Interact
+        Interact,
+        Catch
     }
 
     public static class InputActionMapExtensions
@@ -26,7 +27,8 @@ namespace Clash.Constants
             "Shoot",
             "Jump",
             "Dodge",
-            "Interact"
+            "Interact",
+            "Catch"
         };
 
         /// <summary>

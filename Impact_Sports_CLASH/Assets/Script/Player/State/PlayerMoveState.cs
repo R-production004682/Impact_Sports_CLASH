@@ -21,6 +21,13 @@ public class PlayerMoveState : PlayerState
             return;
         }
 
+        // キャッチ入力されたらキャッチへ遷移
+        if (IsCatchTriggered())
+        {
+            Context.TransitionTo<PlayerCatchState>();
+            return;
+        }
+
         if (Context.Rigidbody.linearVelocity.magnitude < PlayerConfig.STOP_VELOCITY_THRESHOLD)
         {
             Context.TransitionTo<PlayerIdleState>();
